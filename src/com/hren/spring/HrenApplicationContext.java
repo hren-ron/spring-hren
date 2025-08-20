@@ -7,4 +7,9 @@ public class HrenApplicationContext {
     public HrenApplicationContext(Class configClass) {
         this.configClass = configClass;
     }
+
+    // 获取bean
+    public Object getBean(String beanName) {
+        return null;
+    }
 }
