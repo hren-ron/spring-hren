@@ -2,15 +2,21 @@ package com.hren.spring;
 
 import java.io.File;
 import java.net.URL;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HrenApplicationContext {
 
     private Class configClass;
 
+    private ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
+
+    private ConcurrentHashMap<String, Object> singletonObjects = new ConcurrentHashMap<>();
+
     public HrenApplicationContext(Class configClass) {
         this.configClass = configClass;
 
-        if(configClass.isAnnotationPresent(ComponentScan.class)) {
+        // 扫描beanDefinition --> beanDefinitionMap
+        if (configClass.isAnnotationPresent(ComponentScan.class)) {
             ComponentScan componentScanAnnotation = (ComponentScan) configClass.getAnnotation(ComponentScan.class);
 
             String path = componentScanAnnotation.value();
@@ -27,18 +33,77 @@ public class HrenApplicationContext {
                 for (File f : files) {
                     String fileName = f.getAbsolutePath();
                     String className = fileName.substring(fileName.indexOf("com"), fileName.indexOf(".class"));
-                    System.out.println(fileName);
+                    //System.out.println(fileName);
+                    className = className.replace("\\", ".");
+                    System.out.println( className);
+                    try {
+                        Class<?> clazz = classLoader.loadClass(className);
+                        if (fileName.endsWith(".class")) {
 
-                    if (fileName.endsWith(".class")) {
-                         Class<?> clazz = classLoader.loadClass()
+                            if (clazz.isAnnotationPresent(Component.class)) {
+
+                                Component componentAnnotation = clazz.getAnnotation(Component.class);
+                                String beanName = componentAnnotation.value();
+
+                                // BeanDefinition对象创建
+                                BeanDefinition beanDefinition = new BeanDefinition();
+                                if(clazz.isAnnotationPresent(Scope.class)) {
+                                    Scope scopeAnnotation = clazz.getAnnotation(Scope.class);
+                                    beanDefinition.setScope(scopeAnnotation.value());
+                                } else {
+                                    beanDefinition.setScope("singleton");
+                                }
+
+                                beanDefinition.setType(clazz);
+
+                                beanDefinitionMap.put(beanName, beanDefinition);
+                            }
+
+                        }
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
                     }
+
+
                 }
+            }
+        }
+
+        // 创建单例bean --> singletonObjects
+        for (String beanName : beanDefinitionMap.keySet()) {
+            BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+            if ("singleton".equals(beanDefinition.getScope())) {
+                Object bean = createBean(beanName, beanDefinition);
+                singletonObjects.put(beanName, bean);
             }
         }
     }
 
+    private Object createBean(String beanName, BeanDefinition beanDefinition) {
+        return null;
+    }
+
     // 获取bean
     public Object getBean(String beanName) {
-        return null;
+
+        // 根据名字找到对应的类，判断类是否单例
+
+        BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+
+        if (beanDefinition == null) {
+            throw new NullPointerException();
+        } else {
+            String scope = beanDefinition.getScope();
+            if ("singleton".equals(scope)) {
+                Object singletonBean = singletonObjects.get(beanName);
+                if (singletonBean == null) {
+                    Object object = createBean(beanName, beanDefinition);
+                    singletonObjects.put(beanName, object);
+                }
+                return singletonObjects.get(beanName);
+            } else {
+                return createBean(beanName, beanDefinition);
+            }
+        }
     }
 }
