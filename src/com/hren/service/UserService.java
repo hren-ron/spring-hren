@@ -8,6 +8,17 @@ public class UserService implements BeanNameAware, InitializingBean, UserInterfa
     @Autowired
     private OrderService orderService;
 
+    // 管理员，从数据库中查到的管理员（User对象），
+    // 程序员自己实现的逻辑，spring不知道
+    // 在初始化之前执行对应的方法来初始化，例如a(), 加注解 PostConstruct
+    private User admin;
+
+
+    @PostConstruct
+    public void postConstruct() {
+        System.out.println("执行PostConstruct");
+        this.admin = new User();
+    }
     /**
      * 记录bean名字，
      * 需要Aware回调机制，从spring中获取bean名字

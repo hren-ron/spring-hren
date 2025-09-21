@@ -4,6 +4,7 @@ import java.beans.Introspector;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,6 +102,17 @@ public class HrenApplicationContext {
         }
     }
 
+    /**
+     *
+     *
+     * @param beanName
+     * @param beanDefinition
+     * @return
+     */
+
+    // bean生命周期：
+    // userService.class --> 无参构造方法 --> 对象 ---> 依赖注入 ---> 初始化前(@PostConstruct) ---> 初始化 ---> 初始化后 --->放入map（单例池） ---> bean对象
+
     private Object createBean(String beanName, BeanDefinition beanDefinition) {
 
         Class clazz = beanDefinition.getType();
@@ -114,6 +126,13 @@ public class HrenApplicationContext {
                     field.setAccessible(true);
                     // 注入属性值
                     field.set(instance, getBean(field.getName()));
+                }
+            }
+
+            // 执行PostConstruct
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(PostConstruct.class)) {
+                    method.invoke(instance);
                 }
             }
 
