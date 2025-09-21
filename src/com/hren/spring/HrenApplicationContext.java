@@ -109,6 +109,13 @@ public class HrenApplicationContext {
                 ((BeanNameAware) instance).setBeanName(beanName);
             }
 
+            // 初始化
+            if (instance instanceof InitializingBean) {
+                ((InitializingBean) instance).afterPropertiesSet();
+            }
+
+            // 初始化之后AOP
+
             return instance;
         } catch (InstantiationException e) {
             e.printStackTrace();

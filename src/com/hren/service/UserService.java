@@ -1,12 +1,9 @@
 package com.hren.service;
 
-import com.hren.spring.Autowired;
-import com.hren.spring.BeanNameAware;
-import com.hren.spring.Component;
-import com.hren.spring.Scope;
+import com.hren.spring.*;
 
 @Component
-public class UserService implements BeanNameAware {
+public class UserService implements BeanNameAware, InitializingBean {
 
     @Autowired
     private OrderService orderService;
@@ -17,6 +14,7 @@ public class UserService implements BeanNameAware {
      */
     private String beanName;
 
+
     public void test()
     {
         System.out.println("UserService test");
@@ -26,5 +24,10 @@ public class UserService implements BeanNameAware {
     @Override
     public void setBeanName(String beanName) {
         this.beanName = beanName;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        System.out.println("beanName:" + beanName);
     }
 }
