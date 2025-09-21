@@ -3,7 +3,7 @@ package com.hren.service;
 import com.hren.spring.*;
 
 @Component
-public class UserService implements BeanNameAware, InitializingBean {
+public class UserService implements BeanNameAware, InitializingBean, UserInterface {
 
     @Autowired
     private OrderService orderService;

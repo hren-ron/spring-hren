@@ -9,7 +9,7 @@ public interface BeanPostProcessor {
      * @param beanName
      * @return
      */
-     void postProcessBeforeInitialization(Object bean, String beanName);
+     Object postProcessBeforeInitialization(Object bean, String beanName);
 
     /**
      * 初始化后
@@ -18,5 +18,5 @@ public interface BeanPostProcessor {
      * @param beanName
      * @return
      */
-    void postProcessAfterInitialization(Object bean, String beanName);
+    Object postProcessAfterInitialization(Object bean, String beanName);
 }

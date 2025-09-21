@@ -6,7 +6,7 @@ public class Test {
     public static void main(String[] args) {
         HrenApplicationContext hrenApplicationContext = new HrenApplicationContext(AppConfig.class);
 
-        UserService userService = (UserService) hrenApplicationContext.getBean("userService");
+        UserInterface userService = (UserInterface) hrenApplicationContext.getBean("userService");
         userService.test();
     }
 }

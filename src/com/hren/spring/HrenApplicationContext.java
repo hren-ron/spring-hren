@@ -134,7 +134,7 @@ public class HrenApplicationContext {
 
             // 初始化之后AOP
             for (BeanPostProcessor beanPostProcessor : beanPostProcessorList) {
-                beanPostProcessor.postProcessAfterInitialization(instance, beanName);
+                instance = beanPostProcessor.postProcessAfterInitialization(instance, beanName);
             }
 
             return instance;
