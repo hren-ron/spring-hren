@@ -1,6 +1,7 @@
 package com.hren.spring;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,6 +81,22 @@ public class HrenApplicationContext {
     }
 
     private Object createBean(String beanName, BeanDefinition beanDefinition) {
+
+        Class clazz = beanDefinition.getType();
+        try {
+            Object instance = clazz.getConstructor().newInstance();
+
+            return instance;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
