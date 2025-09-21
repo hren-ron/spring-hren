@@ -5,6 +5,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HrenApplicationContext {
@@ -14,6 +15,8 @@ public class HrenApplicationContext {
     private ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     private ConcurrentHashMap<String, Object> singletonObjects = new ConcurrentHashMap<>();
+
+    private ArrayList<BeanPostProcessor> beanPostProcessorList = new ArrayList<>();
 
     public HrenApplicationContext(Class configClass) {
         this.configClass = configClass;
@@ -45,6 +48,12 @@ public class HrenApplicationContext {
 
                             if (clazz.isAnnotationPresent(Component.class)) {
 
+                                // 加入到beanPostProcessor
+                                if(BeanPostProcessor.class.isAssignableFrom(clazz)) {
+                                    BeanPostProcessor instance = (BeanPostProcessor) clazz.newInstance();
+                                    beanPostProcessorList.add(instance);
+                                }
+
                                 Component componentAnnotation = clazz.getAnnotation(Component.class);
                                 String beanName = componentAnnotation.value();
 
@@ -71,6 +80,10 @@ public class HrenApplicationContext {
                         }
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
 
 
@@ -109,12 +122,20 @@ public class HrenApplicationContext {
                 ((BeanNameAware) instance).setBeanName(beanName);
             }
 
+            // 执行beanPostProcessor
+            for (BeanPostProcessor beanPostProcessor : beanPostProcessorList) {
+                beanPostProcessor.postProcessBeforeInitialization(instance, beanName);
+            }
+
             // 初始化
             if (instance instanceof InitializingBean) {
                 ((InitializingBean) instance).afterPropertiesSet();
             }
 
             // 初始化之后AOP
+            for (BeanPostProcessor beanPostProcessor : beanPostProcessorList) {
+                beanPostProcessor.postProcessAfterInitialization(instance, beanName);
+            }
 
             return instance;
         } catch (InstantiationException e) {
