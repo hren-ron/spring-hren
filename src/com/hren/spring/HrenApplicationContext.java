@@ -1,6 +1,8 @@
 package com.hren.spring;
 
+import java.beans.Introspector;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,6 +48,12 @@ public class HrenApplicationContext {
                                 Component componentAnnotation = clazz.getAnnotation(Component.class);
                                 String beanName = componentAnnotation.value();
 
+                                // 如果没有指定beanName，则默认为类名首字母小写
+                                if (beanName.equals("")) {
+                                    // 变成首字母小写
+                                    beanName = Introspector.decapitalize(clazz.getSimpleName());
+                                }
+
                                 // BeanDefinition对象创建
                                 BeanDefinition beanDefinition = new BeanDefinition();
                                 if(clazz.isAnnotationPresent(Scope.class)) {
@@ -86,6 +94,16 @@ public class HrenApplicationContext {
         try {
             Object instance = clazz.getConstructor().newInstance();
 
+            // 实现依赖注入
+            for (Field field : clazz.getDeclaredFields()) {
+                if(field.isAnnotationPresent(Autowired.class)) {
+                    // 才能赋值
+                    field.setAccessible(true);
+                    // 注入属性值
+                    field.set(instance, getBean(field.getName()));
+                }
+            }
+
             return instance;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -113,6 +131,7 @@ public class HrenApplicationContext {
             String scope = beanDefinition.getScope();
             if ("singleton".equals(scope)) {
                 Object singletonBean = singletonObjects.get(beanName);
+                //依赖注入时，如果单例对象不存在，则创建
                 if (singletonBean == null) {
                     Object object = createBean(beanName, beanDefinition);
                     singletonObjects.put(beanName, object);
