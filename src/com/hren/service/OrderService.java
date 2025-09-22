@@ -1,6 +1,6 @@
 package com.hren.service;
 
-import com.hren.spring.Component;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OrderService {

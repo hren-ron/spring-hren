@@ -1,6 +1,7 @@
 package com.hren.service;
 
-import com.hren.spring.*;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class UserService {

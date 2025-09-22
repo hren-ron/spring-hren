@@ -1,9 +1,11 @@
 package com.hren.service;
 
-import com.hren.spring.ComponentScan;
 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @ComponentScan("com.hren.service")
+@EnableAspectJAutoProxy
 public class AppConfig {
 
 }
