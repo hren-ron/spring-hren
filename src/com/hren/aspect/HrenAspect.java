@@ -15,7 +15,17 @@ import org.springframework.stereotype.Component;
  *
  *     public void test() {
  *         // 执行切面逻辑@Before
+ *
+ *
+ *
+ *         // 检查是否游tracnsactional
+ *
+ *         //开启事务
+ *         // 1. 事务管理器新建数据库连接
+ *         // 2. conn.commit = false
  *         target.test();
+ *
+ *         //  conn.commit
  *     }
  * }
  */
