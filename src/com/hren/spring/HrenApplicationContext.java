@@ -111,7 +111,7 @@ public class HrenApplicationContext {
      */
 
     // bean生命周期：
-    // userService.class --> 无参构造方法 --> 对象 ---> 依赖注入 ---> 初始化前(@PostConstruct) ---> 初始化 ---> 初始化后 --->放入map（单例池） ---> bean对象
+    // userService.class --> 无参构造方法 --> 对象 ---> 依赖注入 ---> 初始化前(@PostConstruct) ---> 初始化 ---> 初始化后（AOP）--> 代理对象 --->放入map（单例池） ---> bean对象
 
     private Object createBean(String beanName, BeanDefinition beanDefinition) {
 
